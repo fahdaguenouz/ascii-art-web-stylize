@@ -27,9 +27,15 @@ func processHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	
 
 	var data Data
+	
 	data.Str = r.FormValue("data")
+	if data.Str == "" {
+		http.Error(w, "empty string.", http.StatusBadRequest)
+		return
+	}
 	if len(data.Str) > 200 {
 		http.Error(w, "Input data exceeds 200 characters limit.", http.StatusBadRequest)
 		return
@@ -43,7 +49,7 @@ func processHandler(w http.ResponseWriter, r *http.Request) {
 
 	data.Str = strings.ReplaceAll(data.Str, "\r\n", "\n")
 	
-	data.Res = function.TraitmentData(data.Banner, data.Str)
+	data.Res = function.TraitmentData(w, data.Banner, data.Str)
 	if data.Res == "" { // If TraitmentData failed to generate the result
 		http.Error(w, "Internal Server Error: Failed to process data.", http.StatusInternalServerError)
 		return
